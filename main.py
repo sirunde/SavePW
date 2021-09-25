@@ -21,27 +21,32 @@ def write_key():
 
         return open("key.key", "rb").read()
 
-def encrypy(filename, key):
+# ----------------------------------------------
+# crypt-----------------------------------------
+
+def encrypy(st, key):
     f=Fernet(key)
 
-    with open(filename, "rb") as file:
+    with open(st, "rb") as file:
         file_data = file.read()
 
     encrypted_data = f.encrypt(file_data)
 
-    with open(filename, "wb") as file:
+    with open(st, "wb") as file:
         file.write(encrypted_data)
 
-def decrypt(filename, key):
+def decrypt(st, key):
     f = Fernet(key)
-    with open(filename, "rb") as file:
+    with open(st, "rb") as file:
         encrypted_data = file.read()
 
     decrypted_data = f.decrypt(encrypted_data)
 
-    with open(filename,"wb") as file:
+    with open(st,"wb") as file:
         file.write(decrypted_data)
 
+# --------------------------------------------------
+# main----------------------------------------------
 
 class Window(QWidget, Ui_Form):
     def __init__(self, parent=None):
@@ -58,13 +63,13 @@ class Window(QWidget, Ui_Form):
         with open('pw.csv', mode='r') as infile:
             reader = csv.reader(infile)
             for rows in reader:
-                if (len(rows) < 1):
+                if len(rows) < 1:
                     continue
                 else:
                     PW[rows[0]] = (rows[1], rows[2])
                     self.PWListWidget.addItem(rows[0])
 
-    def Changeecho(self, enabled):  #show Password or not
+    def Changeecho(self, enabled):  # show Password or not
         if not enabled:
             self.PWlineEdit.setEchoMode(QLineEdit.Normal)
             self.print()
@@ -139,12 +144,16 @@ class Window(QWidget, Ui_Form):
         self.PWlineEdit.setText(pw)
 
     def init(self):
+        self.loadPW()
         self.loadButton.clicked.connect(self.loadPW)
         self.PWhidebutton.toggled.connect(self.Changeecho)
         self.SaveButton.clicked.connect(self.Save)
         self.PWListWidget.itemClicked.connect(self.pwbox)
         self.EncryptButton.clicked.connect(self.encrypt)
         self.DecryptButton.clicked.connect(self.decrypt)
+
+
+
 
 
 
