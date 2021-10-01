@@ -10,7 +10,8 @@ import csv
 
 PW = {} # Dict for PW
 
-
+# generate key
+# ------------------------------------------------
 def write_key():
     try:
         return open("key.key", "rb").read()
@@ -29,21 +30,33 @@ def encrypy(st, key):
 
     with open(st, "rb") as file:
         file_data = file.read()
+        print(file_data)
 
     encrypted_data = f.encrypt(file_data)
 
     with open(st, "wb") as file:
-        file.write(encrypted_data)
+            file.write(encrypted_data)
 
 def decrypt(st, key):
     f = Fernet(key)
+
     with open(st, "rb") as file:
         encrypted_data = file.read()
 
-    decrypted_data = f.decrypt(encrypted_data)
+        if len(encrypted_data) >= 1:
+            decrypted_data = f.decrypt(encrypted_data)
+            pass
 
-    with open(st,"wb") as file:
+        else:
+            decrypted_data = encrypted_data
+            pass
+
+    file.close()
+
+    with open(st, "wb") as file:
         file.write(decrypted_data)
+
+    file.close()
 
 # --------------------------------------------------
 # main----------------------------------------------
@@ -60,14 +73,21 @@ class Window(QWidget, Ui_Form):
     def loadPW(self):
         global PW
         self.PWListWidget.clear()
+
+        decrypt('pw.csv', write_key())
+
         with open('pw.csv', mode='r') as infile:
             reader = csv.reader(infile)
             for rows in reader:
                 if len(rows) < 1:
                     continue
                 else:
+
                     PW[rows[0]] = (rows[1], rows[2])
                     self.PWListWidget.addItem(rows[0])
+
+        encrypy('pw.csv', write_key())
+
 
     def Changeecho(self, enabled):  # show Password or not
         if not enabled:
@@ -77,22 +97,31 @@ class Window(QWidget, Ui_Form):
             self.PWlineEdit.setEchoMode(QLineEdit.Password)
 
     def Save(self):
-
         if self.PWListWidget.count() >= 1:
             for index in range(self.PWListWidget.count()):
                 if self.PWListWidget.item(index).text() == self.WebLineEdit.text():
-                    check = True
+                    check = True # password is already in list
                     break
 
                 else:
-                    check = False
+                    check = False # password is not in list
 
             if check == False:
                 self.PWListWidget.addItem(self.WebLineEdit.text())
                 PW[self.WebLineEdit.text()] = self.IDlineEdit.text(), self.PWlineEdit.text()
+                decrypt('pw.csv', write_key())
+                print("decrypted")
                 w = csv.writer(open("pw.csv", "w"))
                 for key, val in PW.items():
                     w.writerow([key, val[0], val[1]])
+
+                w = None
+
+                print(PW)
+
+                encrypy('pw.csv', write_key())
+                print("encrypted")
+
 
 
 
@@ -105,19 +134,28 @@ class Window(QWidget, Ui_Form):
             w = csv.writer(open("pw.csv", "w"))
             for key, val in PW.items():
                 w.writerow([key, val[0], val[1]])
-                print(val[0])
-                print(val[1])
+            w = None
 
+            encrypy('pw.csv', write_key())
+            print("encrypted")
 
     def msgbox(self):
         btn = QMessageBox.question(self, "Same name detected", "Do you want to overwrite it?", QMessageBox.Yes | QMessageBox.No)
         if btn == QMessageBox.Yes:
             PW.update({self.WebLineEdit.text() : (self.IDlineEdit.text(), self.PWlineEdit.text())})
+            decrypt('pw.csv', write_key())
+            print("decrypted")
+
             w = csv.writer(open("pw.csv", "w"))
             for key, val in PW.items():
                 w.writerow([key, val[0], val[1]])
                 print(val[0])
                 print(val[1])
+
+            w = None
+
+            encrypy('pw.csv', write_key())
+
         else:
             pass
 
