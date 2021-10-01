@@ -30,7 +30,6 @@ def encrypy(st, key):
 
     with open(st, "rb") as file:
         file_data = file.read()
-        print(file_data)
 
     encrypted_data = f.encrypt(file_data)
 
@@ -68,7 +67,6 @@ class Window(QWidget, Ui_Form):
 
         self.init()
         key = write_key()
-        print(key)
 
     def loadPW(self):
         global PW
@@ -117,8 +115,6 @@ class Window(QWidget, Ui_Form):
 
                 w = None
 
-                print(PW)
-
                 encrypy('pw.csv', write_key())
                 print("encrypted")
 
@@ -149,8 +145,7 @@ class Window(QWidget, Ui_Form):
             w = csv.writer(open("pw.csv", "w"))
             for key, val in PW.items():
                 w.writerow([key, val[0], val[1]])
-                print(val[0])
-                print(val[1])
+
 
             w = None
 
